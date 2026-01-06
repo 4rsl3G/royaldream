@@ -1,0 +1,23 @@
+<%
+  const rowsJson = JSON.stringify((rows||[]).map(w=>({
+    id:w.id, wd_id:w.wd_id, bank_code:w.bank_code, account_number:w.account_number,
+    account_name:w.account_name, nominal:w.nominal, status:w.status
+  })));
+%>
+
+<section class="grid gap-5">
+  <div class="flex items-end justify-between gap-3" data-aos="fade-up">
+    <div>
+      <div class="badge inline-flex"><i class="ri-bank-card-line"></i> Withdraw</div>
+      <div class="h1 mt-2">Withdraw Admin</div>
+      <div class="muted text-sm mt-1">Draft → check nama (auto detect) → submit → cek status.</div>
+    </div>
+    <button class="btn btn-primary" id="btnNewWithdraw"><i class="ri-add-line"></i> New Withdraw</button>
+  </div>
+
+  <div id="withdrawTable" data-aos="fade-up"></div>
+</section>
+
+<script>
+  window.__WITHDRAWS = <%- rowsJson %>;
+</script>
