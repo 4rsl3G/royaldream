@@ -1,4 +1,5 @@
 import fs from 'fs';
+import fsp from 'fs/promises';
 import crypto from 'crypto';
 import QRCode from 'qrcode';
 
@@ -15,7 +16,14 @@ import { TPL } from './templates.js';
 import { Order } from '../../models/index.js';
 import { bus, EVT } from '../realtime/bus.js';
 
-const AUTH_DIR = new URL('../../../storage/wa_auth', import.meta.url).pathname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const AUTH_DIR = process.env.WA_AUTH_DIR
+  ? (path.isAbsolute(process.env.WA_AUTH_DIR)
+      ? process.env.WA_AUTH_DIR
+      : path.resolve(process.cwd(), process.env.WA_AUTH_DIR))
+  : path.resolve(__dirname, '../../../storage/wa_auth');
 
 let sock = null;
 let auth = null;
