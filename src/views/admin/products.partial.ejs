@@ -1,0 +1,34 @@
+<%
+  const productsJson = JSON.stringify((products||[]).map(p=>({id:p.id, sku:p.sku, name:p.name, active:p.active})));
+  const tiersJson = JSON.stringify((tiers||[]).map(t=>({id:t.id, product_id:t.product_id, label:t.label, qty:t.qty, price:t.price, active:t.active, sort_order:t.sort_order})));
+%>
+
+<section class="grid gap-5">
+  <div class="flex items-end justify-between gap-3" data-aos="fade-up">
+    <div>
+      <div class="badge inline-flex"><i class="ri-store-2-line"></i> Products</div>
+      <div class="h1 mt-2">Produk & Nominal</div>
+      <div class="muted text-sm mt-1">Kelola SKU/produk dan tier nominal (pricelist).</div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" id="btnAddProduct"><i class="ri-add-line"></i> Produk</button>
+      <button class="btn" id="btnAddTier"><i class="ri-add-circle-line"></i> Tier</button>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div>
+      <div class="h2 mb-2">Products</div>
+      <div id="productsTable"></div>
+    </div>
+    <div>
+      <div class="h2 mb-2">Tiers</div>
+      <div id="tiersTable"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.__PRODUCTS = <%- productsJson %>;
+  window.__TIERS = <%- tiersJson %>;
+</script>
