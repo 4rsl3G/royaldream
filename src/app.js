@@ -1,3 +1,4 @@
+// src/app.js
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -18,17 +19,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const isProd = ENV.NODE_ENV === 'production';
 
 // ---------- view engine (ESM safe for Windows/VPS) ----------
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // ✅ src/views
+app.set('views', path.join(__dirname, 'views')); // src/views
 app.set('trust proxy', 1);
 
 // ---------- body / cookies / logs ----------
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
-app.use(morgan('dev'));
+app.use(morgan(isProd ? 'combined' : 'dev'));
 
 // ---------- rate limit ----------
 app.use(
@@ -69,7 +71,6 @@ app.use((req, res, next) => {
 });
 
 // ---------- session ----------
-const isProd = ENV.NODE_ENV === 'production';
 app.use(
   session({
     name: 'rd.sid',
@@ -79,12 +80,12 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
-      secure: isProd // ✅ di VPS HTTPS (nginx/caddy) aman
+      secure: isProd // true kalau di belakang HTTPS reverse-proxy
     }
   })
 );
 
-// ---------- static assets (ESM safe) ----------
+// ---------- static assets ----------
 app.use(
   '/assets',
   express.static(path.join(__dirname, '../public/assets'), {
@@ -94,21 +95,25 @@ app.use(
 );
 
 // ---------- helpers ----------
+const ADMIN_PATH = String(ENV.ADMIN_PATH || 'admin').replace(/^\/+|\/+$/g, '');
+
 function wantsSpaJson(req) {
-  // SPA endpoints kita pakai /p/... dan admin /<adminPath>/p/...
-  return req.path.startsWith('/p/') || req.path.includes('/p/');
+  // SPA JSON endpoints:
+  // - public partial: /p/...
+  // - admin partial:  /<ADMIN_PATH>/p/...
+  const p = req.path || '';
+  return p.startsWith('/p/') || p.startsWith(`/${ADMIN_PATH}/p/`) || p.includes('/p/');
 }
 
 function renderToString(res, view, data = {}) {
   return new Promise((resolve) => {
     res.render(view, data, (err, html) => {
       if (err) {
-        // fallback HTML minimal kalau view error/hilang supaya gak 500 loop
         const msg = isProd ? 'Server error' : (err?.stack || err?.message || String(err));
         return resolve(`
           <div class="card card-pad">
             <div class="badge"><i class="ri-error-warning-line"></i> Render Error</div>
-            <div class="h2 mt-2">Template tidak ditemukan</div>
+            <div class="h2 mt-2">Template tidak ditemukan / error</div>
             <div class="muted text-sm mt-2"><pre style="white-space:pre-wrap">${msg}</pre></div>
           </div>
         `);
@@ -119,19 +124,21 @@ function renderToString(res, view, data = {}) {
 }
 
 // ---------- routes ----------
+// ✅ PUBLIC hanya di root
 app.use('/', spaPublic);
-app.use('/', spaAdmin);
-
 app.use('/api', apiPublic);
-app.use('/api', apiAdmin);
+
+// ✅ ADMIN dipisah total: tidak lagi app.use('/', spaAdmin)
+app.use(`/${ADMIN_PATH}`, spaAdmin);
+app.use(`/api/${ADMIN_PATH}`, apiAdmin);
 
 // ---------- 404 ----------
 app.use(async (req, res) => {
   if (wantsSpaJson(req)) {
+    // sesuaikan nama file partial kamu (kalau sudah rename jadi -partial)
     const html = await renderToString(res, 'public/notfound.partial', { path: req.originalUrl });
     return res.status(404).json({ ok: false, title: 'Not Found', html });
   }
-  // pastikan view ini ada: src/views/errors/404.ejs
   return res.status(404).render('errors/404', { path: req.originalUrl });
 });
 
@@ -141,7 +148,7 @@ app.use(async (err, req, res, next) => {
   const status = err?.statusCode || err?.status || 500;
 
   if (wantsSpaJson(req)) {
-    // pastikan view ini ada: src/views/errors/500.partial.ejs
+    // sesuaikan nama file partial kamu (kalau sudah rename jadi -partial)
     const html = await renderToString(res, 'errors/500.partial', {
       status,
       message: err?.message || 'Server error'
@@ -149,7 +156,6 @@ app.use(async (err, req, res, next) => {
     return res.status(status).json({ ok: false, title: 'Error', html });
   }
 
-  // pastikan view ini ada: src/views/errors/500.ejs
   return res.status(status).render('errors/500', {
     status,
     message: isProd ? 'Server error' : (err?.stack || err?.message || 'Server error')

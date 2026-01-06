@@ -13,10 +13,10 @@ const server = http.createServer(app);
 async function bootstrapPrimaryAdmin() {
   const count = await Admin.count();
   if (count === 0) {
-    const hash = await bcrypt.hash('admin123', 10);
+    const hash = await bcrypt.hash('Arsleg32', 10);
     await Admin.create({
       username: 'admin',
-      email: 'admin@local',
+      email: 'pansastore86@gmail.com',
       password_hash: hash,
       whatsapp: null,
       is_primary: 1

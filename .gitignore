@@ -1,0 +1,45 @@
+# Node / dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+package-lock.json
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Database local storage (sqlite/dev kalau ada)
+*.sqlite
+*.sqlite3
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Build / output
+dist/
+build/
+.out/
+.output/
+exports/
+
+# Upload / generated assets
+public/uploads/
+public/generated/
+storage/wa_auth/
+storage/temp/
+
+# Cache
+.cache/
+tmp/
+temp/

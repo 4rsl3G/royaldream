@@ -9,7 +9,7 @@ function renderPartial(res, view, data) {
 }
 
 router.get('/', async (req, res) => {
-  const html = await renderPartial(res, 'shell/public.shell', {
+  const html = await renderPartial(res, 'layouts/public-layout', {
     title: await getSetting('site_name', 'Royal Dreams Top Up'),
     assetVer: '1',
     body: ''
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/p/landing', async (req, res) => {
-  const html = await renderPartial(res, 'public/landing.partial', {
+  const html = await renderPartial(res, 'public/landing-partial', {
     siteName: await getSetting('site_name', 'Royal Dreams Top Up')
   });
   res.json({ ok: true, title: 'Home', html });
@@ -27,7 +27,7 @@ router.get('/p/landing', async (req, res) => {
 router.get('/p/order', async (req, res) => {
   const products = await Product.findAll({ where: { active: 1 }, order: [['sort_order', 'ASC'], ['id', 'ASC']] });
   const tiers = await ProductTier.findAll({ where: { active: 1 }, order: [['sort_order', 'ASC'], ['id', 'ASC']] });
-  const html = await renderPartial(res, 'public/order.partial', { products, tiers });
+  const html = await renderPartial(res, 'public/order-partial', { products, tiers });
   res.json({ ok: true, title: 'Order', html });
 });
 
@@ -37,7 +37,7 @@ router.get('/p/invoice', async (req, res) => {
     return res.status(404).json({
       ok: false,
       title: 'Not Found',
-      html: await renderPartial(res, 'public/notfound.partial', { path: req.path })
+      html: await renderPartial(res, 'public/notfound-partial', { path: req.path })
     });
   }
 
@@ -46,11 +46,11 @@ router.get('/p/invoice', async (req, res) => {
     return res.status(404).json({
       ok: false,
       title: 'Not Found',
-      html: await renderPartial(res, 'public/notfound.partial', { path: req.path })
+      html: await renderPartial(res, 'public/notfound-partial', { path: req.path })
     });
   }
 
-  const html = await renderPartial(res, 'public/invoice.partial', {
+  const html = await renderPartial(res, 'public/invoice-partial', {
     order: {
       order_id: order.order_id,
       invoice_token: order.invoice_token,

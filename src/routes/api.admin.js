@@ -1,3 +1,4 @@
+// src/routes/api.admin.js
 import express from 'express';
 import bcrypt from 'bcrypt';
 
@@ -32,8 +33,8 @@ function requireAdmin(req, res, next) {
   return res.json({ ok: false, message: 'Unauthorized', redirect: `/${ENV.ADMIN_PATH}?tab=login` });
 }
 
-// AUTH
-router.post(`/${ENV.ADMIN_PATH}/api/login`, async (req, res) => {
+// ===================== AUTH =====================
+router.post('/login', async (req, res) => {
   try {
     const username = String(req.body.username || '').trim();
     const password = String(req.body.password || '');
@@ -46,15 +47,26 @@ router.post(`/${ENV.ADMIN_PATH}/api/login`, async (req, res) => {
 
     req.session.admin_id = a.id;
 
-    await logAudit({ actor: 'admin', actor_id: a.id, action: 'ADMIN_LOGIN', target: 'admin', target_id: String(a.id), req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: a.id,
+      action: 'ADMIN_LOGIN',
+      target: 'admin',
+      target_id: String(a.id),
+      req
+    });
 
-    return res.json({ ok: true, redirect: `/${ENV.ADMIN_PATH}?tab=dashboard`, toast: { type: 'success', message: 'Login sukses' } });
+    return res.json({
+      ok: true,
+      redirect: `/${ENV.ADMIN_PATH}?tab=dashboard`,
+      toast: { type: 'success', message: 'Login sukses' }
+    });
   } catch (e) {
     return res.json({ ok: false, message: e.message || 'Server error' });
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/logout`, requireAdmin, async (req, res) => {
+router.post('/logout', requireAdmin, async (req, res) => {
   try {
     const id = req.session.admin_id;
     req.session.destroy(() => {});
@@ -66,7 +78,7 @@ router.post(`/${ENV.ADMIN_PATH}/api/logout`, requireAdmin, async (req, res) => {
 });
 
 // reset password (OTP via WA admin)
-router.post(`/${ENV.ADMIN_PATH}/api/reset/request`, async (req, res) => {
+router.post('/reset/request', async (req, res) => {
   try {
     const code = genOtp();
     await sendToAdmin(TPL.otp(code));
@@ -76,7 +88,7 @@ router.post(`/${ENV.ADMIN_PATH}/api/reset/request`, async (req, res) => {
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/reset/confirm`, async (req, res) => {
+router.post('/reset/confirm', async (req, res) => {
   try {
     const otp = String(req.body.otp || '').trim();
     const new_password = String(req.body.new_password || '');
@@ -98,8 +110,8 @@ router.post(`/${ENV.ADMIN_PATH}/api/reset/confirm`, async (req, res) => {
   }
 });
 
-// Dashboard JSON
-router.get(`/${ENV.ADMIN_PATH}/api/dashboard/json`, requireAdmin, async (req, res) => {
+// ===================== DASHBOARD =====================
+router.get('/dashboard/json', requireAdmin, async (req, res) => {
   try {
     const [orders, paid, waiting] = await Promise.all([
       Order.count(),
@@ -112,8 +124,8 @@ router.get(`/${ENV.ADMIN_PATH}/api/dashboard/json`, requireAdmin, async (req, re
   }
 });
 
-// Products
-router.post(`/${ENV.ADMIN_PATH}/api/products/create`, requireAdmin, async (req, res) => {
+// ===================== PRODUCTS =====================
+router.post('/products/create', requireAdmin, async (req, res) => {
   try {
     const sku = String(req.body.sku || '').trim();
     const name = String(req.body.name || '').trim();
@@ -125,7 +137,16 @@ router.post(`/${ENV.ADMIN_PATH}/api/products/create`, requireAdmin, async (req, 
 
     const p = await Product.create({ sku, name, image, active, sort_order });
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'PRODUCT_CREATE', target: 'product', target_id: String(p.id), meta: { sku, name }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'PRODUCT_CREATE',
+      target: 'product',
+      target_id: String(p.id),
+      meta: { sku, name },
+      req
+    });
+
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Produk dibuat' } });
   } catch (e) {
@@ -133,13 +154,22 @@ router.post(`/${ENV.ADMIN_PATH}/api/products/create`, requireAdmin, async (req, 
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/products/delete`, requireAdmin, async (req, res) => {
+router.post('/products/delete', requireAdmin, async (req, res) => {
   try {
     const id = Number(req.body.id);
     if (!id) return res.json({ ok: false, message: 'ID kosong' });
 
     await Product.destroy({ where: { id } });
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'PRODUCT_DELETE', target: 'product', target_id: String(id), req });
+
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'PRODUCT_DELETE',
+      target: 'product',
+      target_id: String(id),
+      req
+    });
+
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Produk dihapus' } });
   } catch (e) {
@@ -147,8 +177,8 @@ router.post(`/${ENV.ADMIN_PATH}/api/products/delete`, requireAdmin, async (req, 
   }
 });
 
-// Tiers
-router.post(`/${ENV.ADMIN_PATH}/api/tiers/create`, requireAdmin, async (req, res) => {
+// ===================== TIERS =====================
+router.post('/tiers/create', requireAdmin, async (req, res) => {
   try {
     const product_id = Number(req.body.product_id);
     const label = String(req.body.label || '').trim();
@@ -159,7 +189,16 @@ router.post(`/${ENV.ADMIN_PATH}/api/tiers/create`, requireAdmin, async (req, res
 
     const t = await ProductTier.create({ product_id, label, qty, price, active: 1, sort_order: 0 });
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'TIER_CREATE', target: 'tier', target_id: String(t.id), meta: { product_id, label, qty, price }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'TIER_CREATE',
+      target: 'tier',
+      target_id: String(t.id),
+      meta: { product_id, label, qty, price },
+      req
+    });
+
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Tier dibuat' } });
   } catch (e) {
@@ -167,13 +206,22 @@ router.post(`/${ENV.ADMIN_PATH}/api/tiers/create`, requireAdmin, async (req, res
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/tiers/delete`, requireAdmin, async (req, res) => {
+router.post('/tiers/delete', requireAdmin, async (req, res) => {
   try {
     const id = Number(req.body.id);
     if (!id) return res.json({ ok: false, message: 'ID kosong' });
 
     await ProductTier.destroy({ where: { id } });
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'TIER_DELETE', target: 'tier', target_id: String(id), req });
+
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'TIER_DELETE',
+      target: 'tier',
+      target_id: String(id),
+      req
+    });
+
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Tier dihapus' } });
   } catch (e) {
@@ -181,8 +229,8 @@ router.post(`/${ENV.ADMIN_PATH}/api/tiers/delete`, requireAdmin, async (req, res
   }
 });
 
-// Orders status (manual fulfill + WA notify)
-router.post(`/${ENV.ADMIN_PATH}/api/order/:orderId/status`, requireAdmin, async (req, res) => {
+// ===================== ORDERS STATUS =====================
+router.post('/order/:orderId/status', requireAdmin, async (req, res) => {
   try {
     const { orderId } = req.params;
     const action = String(req.body.action || '').trim();
@@ -206,7 +254,15 @@ router.post(`/${ENV.ADMIN_PATH}/api/order/:orderId/status`, requireAdmin, async 
       return res.json({ ok: false, message: 'Action invalid' });
     }
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'ORDER_STATUS', target: 'order', target_id: o.order_id, meta: { action, note }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'ORDER_STATUS',
+      target: 'order',
+      target_id: o.order_id,
+      meta: { action, note },
+      req
+    });
 
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     bus.emit(EVT.INVOICE_UPDATED, { invoice_token: o.invoice_token });
@@ -217,8 +273,8 @@ router.post(`/${ENV.ADMIN_PATH}/api/order/:orderId/status`, requireAdmin, async 
   }
 });
 
-// Withdraw
-router.post(`/${ENV.ADMIN_PATH}/api/withdraw/create`, requireAdmin, async (req, res) => {
+// ===================== WITHDRAW =====================
+router.post('/withdraw/create', requireAdmin, async (req, res) => {
   try {
     const bank_code = String(req.body.bank_code || '').trim();
     const bank_name = String(req.body.bank_name || '').trim() || null;
@@ -242,7 +298,15 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/create`, requireAdmin, async (req, 
       created_by: req.session.admin_id
     });
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'WITHDRAW_DRAFT', target: 'withdraw', target_id: wd.wd_id, meta: { nominal: wd.nominal }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'WITHDRAW_DRAFT',
+      target: 'withdraw',
+      target_id: wd.wd_id,
+      meta: { nominal: wd.nominal },
+      req
+    });
 
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Draft withdraw dibuat' } });
@@ -251,7 +315,7 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/create`, requireAdmin, async (req, 
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/check`, requireAdmin, async (req, res) => {
+router.post('/withdraw/:id/check', requireAdmin, async (req, res) => {
   try {
     const w = await Withdraw.findByPk(Number(req.params.id));
     if (!w) return res.json({ ok: false, message: 'Withdraw tidak ditemukan' });
@@ -282,7 +346,15 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/check`, requireAdmin, async (re
       res_snapshot: JSON.stringify(r).slice(0, 2500)
     });
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'WITHDRAW_CHECK_OK', target: 'withdraw', target_id: w.wd_id, meta: { account_name: w.account_name }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'WITHDRAW_CHECK_OK',
+      target: 'withdraw',
+      target_id: w.wd_id,
+      meta: { account_name: w.account_name },
+      req
+    });
 
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, data: { account_name: w.account_name } });
@@ -291,12 +363,14 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/check`, requireAdmin, async (re
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/submit`, requireAdmin, async (req, res) => {
+router.post('/withdraw/:id/submit', requireAdmin, async (req, res) => {
   try {
     const w = await Withdraw.findByPk(Number(req.params.id));
     if (!w) return res.json({ ok: false, message: 'Withdraw tidak ditemukan' });
 
-    if (w.status !== 'ready' && w.status !== 'draft') return res.json({ ok: false, message: 'Withdraw belum siap disubmit' });
+    if (w.status !== 'ready' && w.status !== 'draft') {
+      return res.json({ ok: false, message: 'Withdraw belum siap disubmit' });
+    }
 
     const payload = {
       ref_id: w.ref_id,
@@ -339,7 +413,15 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/submit`, requireAdmin, async (r
       res_snapshot: JSON.stringify(r).slice(0, 2500)
     });
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'WITHDRAW_SUBMIT', target: 'withdraw', target_id: w.wd_id, meta: { provider_id: w.provider_transfer_id }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'WITHDRAW_SUBMIT',
+      target: 'withdraw',
+      target_id: w.wd_id,
+      meta: { provider_id: w.provider_transfer_id },
+      req
+    });
 
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Withdraw disubmit' } });
@@ -348,7 +430,7 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/submit`, requireAdmin, async (r
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/status`, requireAdmin, async (req, res) => {
+router.post('/withdraw/:id/status', requireAdmin, async (req, res) => {
   try {
     const w = await Withdraw.findByPk(Number(req.params.id));
     if (!w || !w.provider_transfer_id) return res.json({ ok: false, message: 'Provider ID kosong' });
@@ -369,7 +451,15 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/status`, requireAdmin, async (r
       res_snapshot: JSON.stringify(r).slice(0, 2500)
     });
 
-    await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'WITHDRAW_STATUS', target: 'withdraw', target_id: w.wd_id, meta: { status: next, provider_status: st }, req });
+    await logAudit({
+      actor: 'admin',
+      actor_id: req.session.admin_id,
+      action: 'WITHDRAW_STATUS',
+      target: 'withdraw',
+      target_id: w.wd_id,
+      meta: { status: next, provider_status: st },
+      req
+    });
 
     bus.emit(EVT.DASHBOARD_UPDATED, {});
     return res.json({ ok: true, toast: { type: 'success', message: 'Status withdraw diupdate' } });
@@ -378,8 +468,8 @@ router.post(`/${ENV.ADMIN_PATH}/api/withdraw/:id/status`, requireAdmin, async (r
   }
 });
 
-// Settings + test
-router.post(`/${ENV.ADMIN_PATH}/api/settings/save`, requireAdmin, async (req, res) => {
+// ===================== SETTINGS =====================
+router.post('/settings/save', requireAdmin, async (req, res) => {
   try {
     const { site_name, site_url, api_url, api_key, wa_admin, webhook_secret } = req.body;
 
@@ -398,7 +488,7 @@ router.post(`/${ENV.ADMIN_PATH}/api/settings/save`, requireAdmin, async (req, re
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/settings/test`, requireAdmin, async (req, res) => {
+router.post('/settings/test', requireAdmin, async (req, res) => {
   try {
     const p = await getProfile();
     return res.json({ ok: true, data: p, toast: { type: 'success', message: 'Koneksi gateway OK' } });
@@ -407,12 +497,12 @@ router.post(`/${ENV.ADMIN_PATH}/api/settings/test`, requireAdmin, async (req, re
   }
 });
 
-// WhatsApp panel
-router.get(`/${ENV.ADMIN_PATH}/api/wa/status`, requireAdmin, async (req, res) => {
+// ===================== WHATSAPP =====================
+router.get('/wa/status', requireAdmin, async (req, res) => {
   return res.json({ ok: true, data: getWaState() });
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/wa/pair`, requireAdmin, async (req, res) => {
+router.post('/wa/pair', requireAdmin, async (req, res) => {
   try {
     const phone = String(req.body.phone || '').trim();
     const custom = String(req.body.custom || '').trim();
@@ -426,14 +516,14 @@ router.post(`/${ENV.ADMIN_PATH}/api/wa/pair`, requireAdmin, async (req, res) => 
   }
 });
 
-router.post(`/${ENV.ADMIN_PATH}/api/wa/logout`, requireAdmin, async (req, res) => {
+router.post('/wa/logout', requireAdmin, async (req, res) => {
   await waLogout();
   await logAudit({ actor: 'admin', actor_id: req.session.admin_id, action: 'WA_LOGOUT_RESET', target: 'wa', target_id: '*', req });
   return res.json({ ok: true, toast: { type: 'success', message: 'WA session direset. Silakan connect ulang.' } });
 });
 
-// Audit
-router.get(`/${ENV.ADMIN_PATH}/api/audit/json`, requireAdmin, async (req, res) => {
+// ===================== AUDIT =====================
+router.get('/audit/json', requireAdmin, async (req, res) => {
   const rows = await AuditLog.findAll({ order: [['created_at', 'DESC']], limit: 200 });
   return res.json({ ok: true, data: rows });
 });
