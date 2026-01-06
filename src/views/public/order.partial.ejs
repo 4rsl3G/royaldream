@@ -1,0 +1,85 @@
+<%
+  // build tiers json for client filter
+  const tiersJson = JSON.stringify((tiers||[]).map(t=>({
+    id:t.id, product_id:t.product_id, label:t.label, qty:t.qty, price:t.price, active:t.active, sort_order:t.sort_order
+  })));
+%>
+
+<section class="grid gap-6 md:grid-cols-2 items-start">
+  <div class="card card-pad" data-aos="fade-up">
+    <div class="h2">Buat Invoice</div>
+    <div class="muted text-sm mt-1">Pilih nominal chips, isi data game, lalu buat invoice QRIS.</div>
+    <div class="hr"></div>
+
+    <form id="orderForm" class="grid gap-3">
+      <div>
+        <div class="label">Produk</div>
+        <select class="select" id="product_id" name="product_id">
+          <% (products||[]).forEach(p=>{ %>
+            <option value="<%= p.id %>"><%= p.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div>
+        <div class="label">Nominal Chips</div>
+        <select class="select" id="tier_id" name="tier_id"></select>
+        <div class="help mt-1">Harga mengikuti pricelist admin.</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="label">Game ID</div>
+          <input class="input" id="game_id" name="game_id" placeholder="contoh: 123456" required>
+        </div>
+        <div>
+          <div class="label">Nickname</div>
+          <input class="input" id="nickname" name="nickname" placeholder="nickname" required>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="label">WhatsApp</div>
+          <input class="input" id="whatsapp" name="whatsapp" placeholder="08xxxxxxxxxx" required>
+          <div class="help mt-1">Nomor akan dinormalisasi otomatis (08/62).</div>
+        </div>
+        <div>
+          <div class="label">Email (opsional)</div>
+          <input class="input" id="email" name="email" placeholder="email@domain.com">
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full justify-center mt-2" id="btnCreateInvoice">
+        <i class="ri-qr-code-line"></i> Buat Invoice
+      </button>
+    </form>
+  </div>
+
+  <div class="card card-pad" data-aos="fade-left">
+    <div class="h2">Info Penting</div>
+    <div class="hr"></div>
+
+    <div class="grid gap-3 text-sm">
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="font-extrabold">Pembayaran</div>
+        <div class="muted mt-1">Invoice QRIS akan expired otomatis jika lewat waktu. Tidak perlu cancel manual.</div>
+      </div>
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="font-extrabold">Proses</div>
+        <div class="muted mt-1">Setelah paid, admin proses manual. Kamu akan dapat WA status.</div>
+      </div>
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="font-extrabold">Transparansi</div>
+        <div class="muted mt-1">Status invoice auto-refresh realtime (WebSocket).</div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+    <a class="btn w-full justify-center" href="/p/landing#faq" data-spa="1"><i class="ri-question-line"></i> FAQ</a>
+  </div>
+</section>
+
+<script>
+  window.__TIERS = <%- tiersJson %>;
+</script>
