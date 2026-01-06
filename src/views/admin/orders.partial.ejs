@@ -1,0 +1,19 @@
+<%
+  const ordersJson = JSON.stringify(orders||[]);
+%>
+
+<section class="grid gap-5">
+  <div class="flex items-end justify-between gap-3" data-aos="fade-up">
+    <div>
+      <div class="badge inline-flex"><i class="ri-file-list-3-line"></i> Orders</div>
+      <div class="h1 mt-2">Daftar Order</div>
+      <div class="muted text-sm mt-1">Klik action untuk update status dan kirim WA template otomatis.</div>
+    </div>
+  </div>
+
+  <div id="ordersTable" data-aos="fade-up"></div>
+</section>
+
+<script>
+  window.__ORDERS = <%- ordersJson %>;
+</script>
