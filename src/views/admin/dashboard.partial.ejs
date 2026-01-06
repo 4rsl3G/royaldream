@@ -1,0 +1,43 @@
+<section class="grid gap-5">
+  <div class="flex items-end justify-between gap-3" data-aos="fade-up">
+    <div>
+      <div class="badge inline-flex"><i class="ri-dashboard-2-line"></i> Dashboard</div>
+      <div class="h1 mt-2">Overview</div>
+      <div class="muted text-sm mt-1">Realtime update via WebSocket (tanpa polling).</div>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-3">
+    <div class="card card-pad" data-aos="fade-up" data-aos-delay="60">
+      <div class="muted text-xs">Total Orders</div>
+      <div class="h1 mt-2" id="statOrders">—</div>
+    </div>
+    <div class="card card-pad" data-aos="fade-up" data-aos-delay="120">
+      <div class="muted text-xs">Paid</div>
+      <div class="h1 mt-2" id="statPaid">—</div>
+    </div>
+    <div class="card card-pad" data-aos="fade-up" data-aos-delay="180">
+      <div class="muted text-xs">Waiting Fulfillment</div>
+      <div class="h1 mt-2" id="statWaiting">—</div>
+    </div>
+  </div>
+
+  <div class="card card-pad" data-aos="fade-up">
+    <div class="h2">Quick Tips</div>
+    <div class="hr"></div>
+    <div class="grid md:grid-cols-3 gap-3 text-sm">
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="font-extrabold">WhatsApp Command</div>
+        <div class="muted mt-1">Reply admin WA: <b>done ORDERID</b> / <b>reject ORDERID</b></div>
+      </div>
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="font-extrabold">Auto Expire</div>
+        <div class="muted mt-1">Invoice pending akan expired & cancel otomatis.</div>
+      </div>
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="font-extrabold">Security</div>
+        <div class="muted mt-1">API key terenkripsi di DB. Proxy API tidak expose ke client.</div>
+      </div>
+    </div>
+  </div>
+</section>
