@@ -1,0 +1,80 @@
+<section class="grid gap-5">
+  <div class="card card-pad" data-aos="fade-up">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <div class="badge inline-flex"><i class="ri-receipt-line"></i> Invoice</div>
+        <div class="h1 mt-2"><%= order.order_id %></div>
+        <div class="muted text-sm mt-1"><%= order.product_name %> • <b><%= order.qty %></b>x</div>
+      </div>
+
+      <div class="text-right">
+        <div class="muted text-xs">Total</div>
+        <div class="h2">Rp <%= Number(order.gross_amount||0).toLocaleString('id-ID') %></div>
+        <div class="mt-2 flex gap-2 justify-end">
+          <span class="pill <%= (String(order.pay_status).toLowerCase()==='paid')?'ok':(String(order.pay_status).toLowerCase()==='pending'?'warn':'bad') %>">
+            Pay: <%= order.pay_status %>
+          </span>
+          <span class="pill <%= (String(order.fulfill_status).toLowerCase()==='done')?'ok':(String(order.fulfill_status).toLowerCase()==='waiting' || String(order.fulfill_status).toLowerCase()==='processing'?'warn':'bad') %>">
+            Fulfill: <%= order.fulfill_status %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="grid md:grid-cols-3 gap-3 text-sm">
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="muted text-xs">Game ID</div>
+        <div class="font-extrabold mt-1"><%= order.game_id || '-' %></div>
+      </div>
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="muted text-xs">Nickname</div>
+        <div class="font-extrabold mt-1"><%= order.nickname || '-' %></div>
+      </div>
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
+        <div class="muted text-xs">WhatsApp</div>
+        <div class="font-extrabold mt-1"><%= order.whatsapp_raw || '-' %></div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="grid md:grid-cols-2 gap-3">
+      <div class="p-4 rounded-2xl border border-slate-200 bg-white">
+        <div class="font-extrabold">Status & Catatan</div>
+        <div class="muted text-sm mt-2">
+          <%= order.admin_note ? order.admin_note : 'Belum ada catatan admin.' %>
+        </div>
+        <div class="help mt-3">Halaman ini akan auto-refresh ketika ada perubahan status.</div>
+      </div>
+
+      <div class="p-4 rounded-2xl border border-slate-200 bg-white">
+        <div class="font-extrabold">Aksi</div>
+        <div class="muted text-sm mt-2">Simpan link invoice ini untuk cek status kapan saja.</div>
+
+        <!-- Copy buttons -->
+        <div class="grid sm:grid-cols-2 gap-2 mt-3">
+          <button class="btn btn-primary justify-center" id="btnCopyLink"><i class="ri-links-line"></i> Copy Link</button>
+          <button class="btn justify-center" id="btnCopyOrder"><i class="ri-clipboard-line"></i> Copy Order ID</button>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-2 mt-2">
+          <a class="btn justify-center" href="/p/order" data-spa="1"><i class="ri-shopping-bag-3-line"></i> Buat Lagi</a>
+          <a class="btn justify-center" href="/p/landing" data-spa="1"><i class="ri-home-4-line"></i> Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const link = location.origin + location.pathname + location.search;
+    $('#btnCopyLink').off('click').on('click', async ()=>{
+      try{ await navigator.clipboard.writeText(link); toastr.success('Link dicopy'); }catch{ toastr.error('Gagal copy'); }
+    });
+    $('#btnCopyOrder').off('click').on('click', async ()=>{
+      try{ await navigator.clipboard.writeText('<%= order.order_id %>'); toastr.success('Order ID dicopy'); }catch{ toastr.error('Gagal copy'); }
+    });
+  })();
+</script>
