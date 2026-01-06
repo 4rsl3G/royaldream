@@ -39,8 +39,8 @@ const waState = {
   updated_at: Date.now()
 };
 
-function ensureDir() {
-  if (!fs.existsSync(AUTH_DIR)) fs.mkdirSync(AUTH_DIR, { recursive: true });
+async function ensureDir() {
+  await fsp.mkdir(AUTH_DIR, { recursive: true });
 }
 
 function safeState() {
@@ -64,7 +64,7 @@ export function getWaState() {
 }
 
 export async function startWaService() {
-  ensureDir();
+  await ensureDir();
   auth = await useMultiFileAuthState(AUTH_DIR);
 
   const { version } = await fetchLatestBaileysVersion();
