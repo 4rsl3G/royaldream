@@ -1,0 +1,52 @@
+<section class="grid gap-5">
+  <div data-aos="fade-up">
+    <div class="badge inline-flex"><i class="ri-whatsapp-line"></i> WhatsApp</div>
+    <div class="h1 mt-2">Koneksi Bot</div>
+    <div class="muted text-sm mt-1">QR/Pairs melalui panel. Bot tetap connect walau admin logout.</div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card card-pad" data-aos="fade-up">
+      <div class="flex items-center justify-between">
+        <div class="h2">Status</div>
+        <span class="badge">WA: <b id="waStatus">...</b></span>
+      </div>
+      <div class="hr"></div>
+
+      <div id="waQrHint" class="badge hidden"><i class="ri-qr-code-line"></i> Scan QR di WhatsApp untuk connect</div>
+      <img id="waQrImg" class="hidden mt-3 border border-slate-200 rounded-2xl w-full" alt="QR"/>
+
+      <div class="hr"></div>
+
+      <button class="btn btn-danger w-full justify-center" id="btnWaReset">
+        <i class="ri-logout-circle-r-line"></i> Reset Session (logout)
+      </button>
+      <div class="help mt-2">Reset akan menghapus auth session, kamu harus connect ulang.</div>
+    </div>
+
+    <div class="card card-pad" data-aos="fade-up" data-aos-delay="80">
+      <div class="h2">Pairing Code</div>
+      <div class="muted text-sm mt-1">Alternatif connect tanpa scan QR (di beberapa device lebih nyaman).</div>
+      <div class="hr"></div>
+
+      <div class="grid gap-3">
+        <div>
+          <div class="label">Nomor WhatsApp Bot (yang mau dikoneksikan)</div>
+          <input class="input" id="waPairPhone" placeholder="08xxxxxxxxxx">
+        </div>
+        <div>
+          <div class="label">Custom code (opsional)</div>
+          <input class="input" id="waPairCustom" placeholder="contoh: ROYAL123">
+        </div>
+        <button class="btn btn-primary w-full justify-center" id="btnWaPair">
+          <i class="ri-link"></i> Request Pairing Code
+        </button>
+      </div>
+
+      <div id="pairBox" class="hidden mt-4">
+        <div class="badge"><i class="ri-key-2-line"></i> Pair Code: <b id="waPairCode"></b></div>
+        <div class="help mt-2">Masukkan pairing code di WhatsApp sesuai flow pairing.</div>
+      </div>
+    </div>
+  </div>
+</section>
