@@ -1,0 +1,25 @@
+<%
+  const auditJson = JSON.stringify((rows||[]).map(a=>({
+    created_at: a.created_at,
+    actor: a.actor,
+    actor_id: a.actor_id,
+    action: a.action,
+    target: a.target,
+    target_id: a.target_id,
+    meta: a.meta
+  })));
+%>
+
+<section class="grid gap-5">
+  <div data-aos="fade-up">
+    <div class="badge inline-flex"><i class="ri-history-line"></i> Audit</div>
+    <div class="h1 mt-2">Audit Log</div>
+    <div class="muted text-sm mt-1">Riwayat aksi penting untuk forensik & keamanan.</div>
+  </div>
+
+  <div id="auditTable" data-aos="fade-up"></div>
+</section>
+
+<script>
+  window.__AUDIT = <%- auditJson %>;
+</script>
