@@ -1,0 +1,26 @@
+<div class="max-w-md mx-auto" data-aos="fade-up">
+  <div class="card card-pad">
+    <div class="badge inline-flex"><i class="ri-shield-keyhole-line"></i> Admin Login</div>
+    <div class="h1 mt-3">Masuk</div>
+    <div class="muted mt-1 text-sm">Hanya 1 admin. Tidak ada register.</div>
+    <div class="hr"></div>
+
+    <form id="adminLoginForm" class="grid gap-3">
+      <div>
+        <div class="label">Username</div>
+        <input class="input" id="username" placeholder="admin" autocomplete="username">
+      </div>
+      <div>
+        <div class="label">Password</div>
+        <input class="input" id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary w-full justify-center" id="btnAdminLogin"><i class="ri-login-circle-line"></i> Login</button>
+    </form>
+
+    <div class="hr"></div>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <button class="btn w-full justify-center" id="btnReqOtp"><i class="ri-message-3-line"></i> Kirim OTP WA</button>
+      <button class="btn w-full justify-center" id="btnResetWithOtp"><i class="ri-key-2-line"></i> Reset via OTP</button>
+    </div>
+  </div>
+</div>
