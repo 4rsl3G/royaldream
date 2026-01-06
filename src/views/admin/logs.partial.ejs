@@ -1,0 +1,14 @@
+<section class="grid gap-5">
+  <div class="flex items-end justify-between gap-3" data-aos="fade-up">
+    <div>
+      <div class="badge inline-flex"><i class="ri-terminal-box-line"></i> Live Logs</div>
+      <div class="h1 mt-2">Streaming Logs</div>
+      <div class="muted text-sm mt-1">Realtime dari server via WebSocket (tanpa polling).</div>
+    </div>
+    <button class="btn" id="btnExportLogs"><i class="ri-download-2-line"></i> Export</button>
+  </div>
+
+  <div class="card card-pad" data-aos="fade-up">
+    <pre id="logBox" class="text-xs bg-slate-50 border border-slate-200 rounded-2xl p-3 overflow-auto" style="height:420px"></pre>
+  </div>
+</section>
