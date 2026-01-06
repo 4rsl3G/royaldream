@@ -251,3 +251,7 @@ body{
 .pill.ok{background:#ecfdf5;border-color:#bbf7d0;color:#065f46}
 .pill.warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
 .pill.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+
+
+.btn-xs{veal:inherit}
+.btn.btn-xs{padding:8px 10px;border-radius:12px;font-size:12px}
