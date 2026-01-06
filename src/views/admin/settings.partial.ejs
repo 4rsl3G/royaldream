@@ -1,0 +1,50 @@
+<section class="grid gap-5">
+  <div data-aos="fade-up">
+    <div class="badge inline-flex"><i class="ri-settings-3-line"></i> Settings</div>
+    <div class="h1 mt-2">Konfigurasi</div>
+    <div class="muted text-sm mt-1">Semua setting disimpan di DB (api key terenkripsi).</div>
+  </div>
+
+  <div class="card card-pad" data-aos="fade-up">
+    <form id="settingsForm" class="grid gap-3">
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <div class="label">Site Name</div>
+          <input class="input" id="site_name" placeholder="Royal Dreams Top Up">
+        </div>
+        <div>
+          <div class="label">Site URL (penting untuk link invoice WA)</div>
+          <input class="input" id="site_url" placeholder="https://domainkamu.com">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <div class="label">API URL</div>
+          <input class="input" id="api_url" placeholder="https://atlantich2h.com">
+        </div>
+        <div>
+          <div class="label">API KEY</div>
+          <input class="input" id="api_key" placeholder="(akan disimpan terenkripsi)">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-3">
+        <div>
+          <div class="label">WA Admin</div>
+          <input class="input" id="wa_admin" placeholder="08xxxx / 62xxxx">
+        </div>
+        <div>
+          <div class="label">Webhook Secret</div>
+          <input class="input" id="webhook_secret" placeholder="random-secret">
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2 mt-2">
+        <button class="btn btn-primary" id="btnSaveSettings"><i class="ri-save-3-line"></i> Simpan</button>
+        <button type="button" class="btn" id="btnTestGateway"><i class="ri-plug-2-line"></i> Test Gateway</button>
+      </div>
+      <div class="help">Note: untuk keamanan, jangan share webhook secret dan API key.</div>
+    </form>
+  </div>
+</section>
